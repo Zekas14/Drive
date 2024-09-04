@@ -1,5 +1,6 @@
 ﻿using DriveApp.Core.Errors;
 using DriveApp.DTO;
+using DriveApp.DTO.Auth;
 
 namespace DriveApp.Services
 {

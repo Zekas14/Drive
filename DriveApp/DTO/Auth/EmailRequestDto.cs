@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriveApp.DTO
+namespace DriveApp.DTO.Auth
 {
     public class SendEmailDto
     {

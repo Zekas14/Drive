@@ -2,6 +2,7 @@
 using DriveApp.Core.Enums;
 using DriveApp.Core.Errors;
 using DriveApp.DTO;
+using DriveApp.DTO.Auth;
 using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
 using DriveApp.Services.Interfaces;
@@ -80,25 +81,22 @@ namespace DriveApp.Services
         {
                 var user = await userManager.FindByEmailAsync(dto.Email);
                 if (user is not null)
+            {
+                if (!_cache.TryGetValue("validateToken", out string? validateToken))
                 {
-                    if (_cache.TryGetValue("validateToken", out string? validateToken))
-                    {
-                       var resetToken = _cache.Get<string>("resetToken");
-                        if (resetToken == validateToken)
-                        {
-                            var result = await userManager.ResetPasswordAsync(user, resetToken!, dto.NewPassword);
-                            if (result.Succeeded)
-                            {
-                                return new ApiResponse(200,"Password Changed Sucessfully");
-                            }
-                        else
-                        {
-                            return new ApiResponse(400, "your are not Verified Email OTP");
-                        }
-                        }
-                    }
-
+                    return new ApiResponse(400, "your are not Verified Email OTP");
                 }
+                var resetToken = _cache.Get<string>("resetToken");
+                if (resetToken == validateToken)
+                {
+                    var result = await userManager.ResetPasswordAsync(user, resetToken!, dto.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return new ApiResponse(200,"Password Changed Sucessfully");
+                    }
+                        
+                }       
+            }
                 return new ApiResponse(404,"User Not Found");
         }
         public async Task<ApiResponse> Login(Login dto)

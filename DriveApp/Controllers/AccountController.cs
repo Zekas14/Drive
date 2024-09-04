@@ -1,6 +1,7 @@
 ﻿using DriveApp.Core;
 using DriveApp.Core.Errors;
 using DriveApp.DTO;
+using DriveApp.DTO.Auth;
 using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
 using DriveApp.Services;
@@ -23,19 +24,12 @@ namespace DriveApp.Controllers
     public class AccountController : ControllerBase
     {   private readonly UserManager<UserApplication> userManager;
         private readonly IAccountServices accountServices;
-        private readonly IMailServices _emailService;
-        public AccountController(IMemoryCache cache,IMailServices emailService,AppDbContext context , UserManager<UserApplication> userManager,IAccountServices accountServices)
+        public AccountController(IMemoryCache cache,AppDbContext context , UserManager<UserApplication> userManager,IAccountServices accountServices)
         {
             this.userManager = userManager;
             this.accountServices = accountServices;
-            this._emailService = emailService;
         }
-        [HttpPost("SendEmail")]
-        public async Task<IActionResult> SendTestEmail(SendEmailDto dto)
-        {
-            await _emailService.SendEmailAsync(dto.Email, dto.Subject, dto.Body,dto.Attachments);
-            return Ok("Email sent successfully.");
-        }
+        
         [HttpPost("Regestration")]
         public async Task<IActionResult> Regestration(Regestration dto)
         {

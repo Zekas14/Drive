@@ -1,6 +1,4 @@
-﻿using DriveApp.Core.Enums;
-using DriveApp.Models.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +7,8 @@ namespace DriveApp.DTO
 
 {
     [NotMapped]
-    public class Regestration : IValidatableObject
+    [Index(nameof(Email),nameof(PhoneNumber),IsUnique =true)]
+    public class Regestration 
     {
         public required string UserName { get; set; }
         [EmailAddress]
@@ -28,20 +27,7 @@ namespace DriveApp.DTO
         [AllowedValues(["Admin","Traveller","Driver"])]
         [DefaultValue("Traveller")]
         public required string Role { get; set; }  
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            var dbContext = (AppDbContext)validationContext.GetService(typeof(AppDbContext))!;
-
-            if (dbContext.Users.Any(u => u.Email == this.Email))
-            {
-                yield return new ValidationResult("Email must be unique.");
-            }
-            if(dbContext.Users.Any(u => u.PhoneNumber == this.PhoneNumber))
-            {
-                yield return new ValidationResult("Phone Number must be unique.");
-
-            }
-        }
+        
 
 
     }
