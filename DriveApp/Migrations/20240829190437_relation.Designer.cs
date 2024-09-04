@@ -13,7 +13,7 @@ namespace DriveApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20240829190437_relation")]
-    partial class relation
+    partial class Relation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

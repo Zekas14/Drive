@@ -62,13 +62,21 @@
               "target": "Package",
               "version": "[8.0.8, )"
             },
-            "SendGrid": {
+            "Microsoft.Extensions.Configuration": {
               "target": "Package",
-              "version": "[9.29.3, )"
+              "version": "[8.0.0, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.7.1, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
+            },
+            "microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
             }
           },
           "imports": [

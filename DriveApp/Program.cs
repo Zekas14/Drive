@@ -2,9 +2,12 @@ using DriveApp;
 using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
 using DriveApp.Services;
+using DriveApp.Services.Interfaces;
+using DriveApp.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +21,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITripServices,TripServices>();
 builder.Services.AddScoped<IAccountServices,AccountServices>();
 builder.Services.AddDbContext<AppDbContext>();
-
+builder.Services.Configure<MailSetting>(config.GetSection("MailSettings"));
+builder.Services.AddTransient<IMailServices,MailServices>();
 builder.Services.AddIdentity<UserApplication, RoleApplication>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 builder.Services.AddAuthentication(
     options =>
@@ -39,7 +43,7 @@ builder.Services.AddAuthentication(
             ValidIssuer = config["JWT:Issuer"],
             ValidateAudience = true,
             ValidAudience = config["JWT:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(config["JWT:SecretKey"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(config["JWT:SecretKey"]!))
         };
     });
 builder.Services.AddMemoryCache();

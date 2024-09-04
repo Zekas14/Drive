@@ -7,7 +7,7 @@
 namespace DriveApp.Migrations
 {
     /// <inheritdoc />
-    public partial class relation : Migration
+    public partial class Relation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -204,9 +204,6 @@ D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Micro
 D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\MimeKit.dll
 D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Mono.TextTemplating.dll
-D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Newtonsoft.Json.dll
-D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\SendGrid.dll
-D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\StarkbankEcdsa.dll
 D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\Ahmed\ASP.NET\Web Api\Projects\DriveApp\Drive\DriveApp\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll

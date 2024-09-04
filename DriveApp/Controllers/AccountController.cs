@@ -4,6 +4,7 @@ using DriveApp.DTO;
 using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
 using DriveApp.Services;
+using DriveApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -22,47 +23,30 @@ namespace DriveApp.Controllers
     public class AccountController : ControllerBase
     {   private readonly UserManager<UserApplication> userManager;
         private readonly IAccountServices accountServices;
-        public AccountController(IMemoryCache cache,IEmailSender emailSender,AppDbContext context , UserManager<UserApplication> userManager,IAccountServices accountServices)
+        private readonly IMailServices _emailService;
+        public AccountController(IMemoryCache cache,IMailServices emailService,AppDbContext context , UserManager<UserApplication> userManager,IAccountServices accountServices)
         {
             this.userManager = userManager;
             this.accountServices = accountServices;
+            this._emailService = emailService;
+        }
+        [HttpPost("SendEmail")]
+        public async Task<IActionResult> SendTestEmail(SendEmailDto dto)
+        {
+            await _emailService.SendEmailAsync(dto.Email, dto.Subject, dto.Body,dto.Attachments);
+            return Ok("Email sent successfully.");
         }
         [HttpPost("Regestration")]
         public async Task<IActionResult> Regestration(Regestration dto)
         {
             if (ModelState.IsValid)
             {
-                var user = await userManager.FindByEmailAsync(dto.Email);
-                if (user is not null)
+               var result = await accountServices.Register(dto);
+                if(result.StatusCode== 400)
                 {
-                    return BadRequest("Email Already Used");
+                    return BadRequest(result);
                 }
-                user = new UserApplication()
-                {
-                    UserName = dto.UserName,
-                    Email = dto.Email,
-                    Address = dto.Address,
-                    PhoneNumber = dto.PhoneNumber,
-                };
-                IdentityResult result = await userManager.CreateAsync(user, dto.Password);
-                if (result.Succeeded)
-                {
-
-                    await userManager.AddToRoleAsync(user, dto.Role);
-                    var token = await userManager.CreateTokenAsync(user);
-                    string tokenData = new JwtSecurityTokenHandler().WriteToken(token);
-
-                    UserDto userDto = new()
-                    {
-                        Name = user.UserName,
-                        Email = user.Email,
-                        Address = user.Address,
-                        Id = user.Id,
-                        Phone = user.PhoneNumber,
-                    };
-                    return Ok(new { userDto, token = tokenData, Expiration = token.ValidTo });
-                }
-                return BadRequest(result.Errors);
+                return Ok(result);
             }
                 return BadRequest(ModelState);
         }
@@ -81,16 +65,35 @@ namespace DriveApp.Controllers
             return BadRequest(ModelState);
         }
         [HttpPost("ForgetPassword")]
-        public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress] string email)
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordDto dto)
         {
             if (ModelState.IsValid)
             {
-                var result = await accountServices.ForgetPassword(email);
+                var result = await accountServices.ForgetPassword(dto);
                 return Ok(result);
 
             }
             return BadRequest(ModelState);
         }
+        [HttpPost("VerifyOtp")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpDto dto)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await accountServices.VerifyOtp(dto);
+                if (result.StatusCode == 404)
+                {
+                    return NotFound(result);
+                }if (result.StatusCode == 400)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+            }
+
+                return BadRequest(ModelState);
+        }
+
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
         {

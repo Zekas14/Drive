@@ -7,7 +7,8 @@ namespace DriveApp.Services
     {
         public Task<ApiResponse> Login(Login dto);
         public Task<ApiResponse> Register(Regestration dto);
-        public Task<ApiResponse> ForgetPassword(string email);
+        public Task<ApiResponse> ForgetPassword(ForgetPasswordDto dto);
+        public Task<ApiResponse> VerifyOtp(VerifyOtpDto dto);
         public Task<ApiResponse> ResetPassword(ResetPasswordDto dto);
     }
 }

@@ -9,6 +9,5 @@ namespace DriveApp.DTO
         public string Email { get; set; }
         [PasswordPropertyText]
         public string NewPassword { get; set; }
-        public string InputOtp { get; set; } 
     }
 }

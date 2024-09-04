@@ -4,6 +4,7 @@ using DriveApp.Core.Errors;
 using DriveApp.DTO;
 using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
+using DriveApp.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -12,20 +13,21 @@ using System.IdentityModel.Tokens.Jwt;
 namespace DriveApp.Services
 {
     public class AccountServices(UserManager<UserApplication> userManager,AppDbContext dbContext,
-        IMemoryCache cache) : IAccountServices
+        IMailServices mailServices,IMemoryCache cache) : IAccountServices
     {
         private readonly UserManager<UserApplication> userManager = userManager;
         private readonly AppDbContext dbContext = dbContext;
+        private readonly IMailServices mailServices = mailServices;
         private readonly IMemoryCache _cache = cache;
         private string GenerateOtp()
         {
-            return new Random().Next().ToString();
+            return new Random().Next(1000,10000).ToString();
         }
-        public async Task<ApiResponse> ForgetPassword(string email)
+        public async Task<ApiResponse> ForgetPassword(ForgetPasswordDto dto)
         {
             try
             {
-                var user = await userManager.FindByEmailAsync(email);
+                var user = await userManager.FindByEmailAsync(dto.Email);
                 if (user is null)
                 {
                     return new ApiResponse(404, "User Not Found");
@@ -33,9 +35,16 @@ namespace DriveApp.Services
                 var otp = GenerateOtp();
                 var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
 
-                _cache.Set($"otp", otp, TimeSpan.FromMinutes(5));
-                _cache.Set($"resetToken", resetToken, TimeSpan.FromMinutes(5));
+                _cache.Set($"otp", otp, TimeSpan.FromMinutes(15));
+                _cache.Set($"resetToken", resetToken, TimeSpan.FromMinutes(10));
+                try
+                {
+                    await mailServices.SendEmailAsync(dto.Email, "Otp Verification", otp);
                 return new ApiResponse(200, "Otp Sent To Your Email");
+                }catch(Exception e)
+                {
+                    return new ApiResponse(500,e.Message);
+                }
 
             }
             catch (Exception e )
@@ -43,32 +52,52 @@ namespace DriveApp.Services
                 return new ApiResponse(500,e.Message);
             }
         }
+        public async Task<ApiResponse> VerifyOtp(VerifyOtpDto dto)
+        {
+            string validateToken= "";
+            _cache.Set($"validateToken", validateToken, TimeSpan.FromMinutes(15));
+            var user = await userManager.FindByEmailAsync(dto.Email);
+            if (user is not null)
+            {
+                if (_cache.TryGetValue("otp", out string? validOtp))
+                {
+                    if (dto.InputOtp == validOtp)
+                    {
+                        validateToken = _cache.Get<string>("resetToken")!;
+                       _cache.Set($"validateToken", validateToken, TimeSpan.FromMinutes(15));
+                        return new ApiResponse(200,"OTP Verified");
+                    }
+
+                    return new ApiResponse(400, "Invalid OTP");
+                }
+                return new ApiResponse(400, "OTP Timeout");
+
+            }
+            return new ApiResponse(404, "User Not Found");
+        }
+
         public async Task<ApiResponse> ResetPassword(ResetPasswordDto dto)
         {
                 var user = await userManager.FindByEmailAsync(dto.Email);
                 if (user is not null)
                 {
-                    if (_cache.TryGetValue("otp", out string? validOtp))
+                    if (_cache.TryGetValue("validateToken", out string? validateToken))
                     {
-                        if (dto.InputOtp == validOtp)
+                       var resetToken = _cache.Get<string>("resetToken");
+                        if (resetToken == validateToken)
                         {
-                            var resetToken = _cache.Get<string>("resetToken");
                             var result = await userManager.ResetPasswordAsync(user, resetToken!, dto.NewPassword);
                             if (result.Succeeded)
                             {
                                 return new ApiResponse(200,"Password Changed Sucessfully");
                             }
-                        }
                         else
                         {
-                            return new ApiResponse(400, "Otp is not Valid");
+                            return new ApiResponse(400, "your are not Verified Email OTP");
+                        }
                         }
                     }
-                    else
-                    {
-                        return new ApiResponse(400,"Otp is null");
 
-                    }
                 }
                 return new ApiResponse(404,"User Not Found");
         }
@@ -123,6 +152,7 @@ namespace DriveApp.Services
                     Address = dto.Address,
                     PhoneNumber = dto.PhoneNumber,
                 };
+
                 IdentityResult result = await userManager.CreateAsync(user, dto.Password);
                 if (result.Succeeded)
                 {
@@ -148,5 +178,6 @@ namespace DriveApp.Services
                 return new ApiResponse(500, e.Message);
             }
         }
+
     }
 }
