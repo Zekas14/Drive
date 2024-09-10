@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DriveApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc0d7462453674a51f098cc6ed92a74e9decc032")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2798fe0bba13c59bff00770164b271bdbd313e7c")]
 [assembly: System.Reflection.AssemblyProductAttribute("DriveApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DriveApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

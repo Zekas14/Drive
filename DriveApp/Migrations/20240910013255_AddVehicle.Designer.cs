@@ -4,6 +4,7 @@ using DriveApp.Models.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DriveApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240910013255_AddVehicle")]
+    partial class AddVehicle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,8 +325,7 @@ namespace DriveApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DriverId")
-                        .IsUnique();
+                    b.HasIndex("DriverId");
 
                     b.ToTable("Vehicle");
 
@@ -445,8 +447,8 @@ namespace DriveApp.Migrations
             modelBuilder.Entity("Models.Entities.Vehicle", b =>
                 {
                     b.HasOne("DriveApp.Models.Entities.Driver", "Driver")
-                        .WithOne("Vehicle")
-                        .HasForeignKey("Models.Entities.Vehicle", "DriverId")
+                        .WithMany("Vehicles")
+                        .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -469,8 +471,7 @@ namespace DriveApp.Migrations
 
             modelBuilder.Entity("DriveApp.Models.Entities.Driver", b =>
                 {
-                    b.Navigation("Vehicle")
-                        .IsRequired();
+                    b.Navigation("Vehicles");
 
                     b.Navigation("tripDetails");
                 });

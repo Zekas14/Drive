@@ -24,10 +24,12 @@ namespace DriveApp.DTO
         public required string Password { get; set; }
         [Compare("Password")]
         public required string ConfirmPassword { get; set; }
-        [AllowedValues(["Admin","Traveller","Driver"])]
+        [AllowedValues(["Admin", "Traveller", "Driver"])]
         [DefaultValue("Traveller")]
-        public required string Role { get; set; }  
-        
+        public required string Role { get; set; }
+
+        public string LicenseNumber { get; set; }
+        public string AvailabilityStatus { get; set; }
 
 
     }

@@ -1,21 +1,11 @@
-﻿using DriveApp.Core;
-using DriveApp.Core.Errors;
-using DriveApp.DTO;
+﻿using DriveApp.DTO;
 using DriveApp.DTO.Auth;
 using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
 using DriveApp.Services;
-using DriveApp.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace DriveApp.Controllers
 {

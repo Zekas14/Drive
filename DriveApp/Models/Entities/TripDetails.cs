@@ -11,7 +11,7 @@ namespace Models.Entities
         public int TripId { get; set; }
         public Trip Trip { get; set; }
         [ForeignKey("Drivers")]
-        public string DirverId { get; set; }
+        public string DriverId { get; set; }
         public Driver Driver { get; set; }
         public DateTime DateByHour { get; set; } =DateTime.Now;
     }

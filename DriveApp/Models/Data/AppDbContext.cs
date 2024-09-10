@@ -1,5 +1,4 @@
 ﻿using DriveApp.Models.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Models.Entities;
@@ -18,7 +17,10 @@ namespace DriveApp.Models.Data
             builder.Entity<Trip>().ToTable("Trips").HasKey(t=>t.Id);
             builder.Entity<TripDetail>().ToTable("TripDetails").HasKey(t =>t.Id);
             builder.Entity<UserApplication>().UseTptMappingStrategy();
-       
+            builder.Entity<Vehicle>().HasKey(v => v.Id);
+            builder.Entity<Vehicle>().HasDiscriminator<string>("Type")
+                .HasValue<Car>("Car")
+                .HasValue<Motocycle>("Motocycle");
         }
         public AppDbContext(DbContextOptions options,IConfiguration confing) : base(options) 
         {

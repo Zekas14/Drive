@@ -1,5 +1,4 @@
 ﻿using DriveApp.Core;
-using DriveApp.Core.Enums;
 using DriveApp.Core.Errors;
 using DriveApp.DTO;
 using DriveApp.DTO.Auth;
@@ -7,8 +6,6 @@ using DriveApp.Models.Data;
 using DriveApp.Models.Entities;
 using DriveApp.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.IdentityModel.Tokens.Jwt;
 namespace DriveApp.Services
@@ -40,7 +37,7 @@ namespace DriveApp.Services
                 _cache.Set($"resetToken", resetToken, TimeSpan.FromMinutes(10));
                 try
                 {
-                    await mailServices.SendEmailAsync(dto.Email, "Otp Verification", otp);
+                    await mailServices.SendEmailAsync(dto.Email, "Otp Verification", $" Your Verification OTP Code is : {otp} ");
                 return new ApiResponse(200, "Otp Sent To Your Email");
                 }catch(Exception e)
                 {
@@ -55,7 +52,7 @@ namespace DriveApp.Services
         }
         public async Task<ApiResponse> VerifyOtp(VerifyOtpDto dto)
         {
-            string validateToken= "";
+            string? validateToken= null;
             _cache.Set($"validateToken", validateToken, TimeSpan.FromMinutes(15));
             var user = await userManager.FindByEmailAsync(dto.Email);
             if (user is not null)
@@ -82,9 +79,9 @@ namespace DriveApp.Services
                 var user = await userManager.FindByEmailAsync(dto.Email);
                 if (user is not null)
             {
-                if (!_cache.TryGetValue("validateToken", out string? validateToken))
+                if (!_cache.TryGetValue("validateToken", out string? validateToken)||validateToken==null)
                 {
-                    return new ApiResponse(400, "your are not Verified Email OTP");
+                    return new ApiResponse(400, "your didn't Verify Email OTP");
                 }
                 var resetToken = _cache.Get<string>("resetToken");
                 if (resetToken == validateToken)

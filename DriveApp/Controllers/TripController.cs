@@ -25,17 +25,7 @@ namespace DriveApp.Controllers
             }
             return Accepted(result);
         }
-        [HttpPatch("AcceptTrip/{id:int}")]
-        
-        public async Task<IActionResult> AcceptTrip(int id)
-        {
-            var result = await services.AcceptTrip(id);
-            if (result.StatusCode == 404)
-            {
-                return NotFound(result);
-            }
-            return Accepted(result);
-        }
+     
         [HttpGet("GetRequestedTrips")]
        //    [Authorize(Roles ="Driver")]
         public IActionResult GetRequstedTrips()
