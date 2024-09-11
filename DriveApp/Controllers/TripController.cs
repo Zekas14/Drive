@@ -15,6 +15,20 @@ namespace DriveApp.Controllers
     public class TripController(ITripServices services) : ControllerBase
     {
         private readonly ITripServices services = services;
+        [HttpGet("InformTraveller/{tripId:int}")]
+        public async Task<IActionResult> InformTraveller(int tripId)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await services.InfromTraveller(tripId);
+                if (result.StatusCode == 404)
+                {
+                    return NotFound(result);  
+                }
+                    return Ok(new {result});   
+            }
+                return BadRequest(ModelState);
+        }
         [HttpPatch("CancelTrip/{id:int}")]
         public async Task<IActionResult> CancelTrip(int id)
         {

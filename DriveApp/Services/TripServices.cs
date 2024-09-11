@@ -126,8 +126,41 @@ namespace DriveApp.Services
             }
         }
 
-        /*public ApiResponse InfromTraveller(InformTravellerDto dto)
+        public async Task<ApiResponse> InfromTraveller(int tripId)
         {
-        }*/
+            try
+            {
+                Trip? trip = context.Trips.FirstOrDefault(t=>t.Id==tripId);
+                if (trip is  null)
+                {
+                    return new ApiResponse(404, "Trip Not Found");
+                }
+                if (!trip.Status!.Equals("Accepted"))
+                {
+                    return new ApiResponse(400, "Trip Don't Accepted");
+
+                }
+                var driver = await context.TripDetails.Include(d => d.Driver)
+                    .Include(t => t.Trip)
+                    .Select(d=> new
+                    {
+                        d.TripId,
+                       DriverName = d.Driver.UserName,
+                        d.Driver.PhoneNumber,
+          
+                    })
+                    .FirstOrDefaultAsync(t=>t.TripId==tripId);
+                InformTravellerDto data = new()
+                {
+                    DriverName = driver!.DriverName!,
+                    PhoneNumber = driver.PhoneNumber!,
+                };
+                return new ApiResponse(200,"Traveller Informed",data);
+            }
+            catch (Exception e)
+            {
+                return new ApiResponse(500, e.Message);
+            }
+        }
     }
 }

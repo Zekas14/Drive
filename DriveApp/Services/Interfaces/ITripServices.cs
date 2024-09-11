@@ -10,7 +10,7 @@ namespace DriveApp.Services
         public Task<ApiResponse> CancelTrip(int id);
         public Task<ApiResponse> AcceptTrip(AcceptTripDto dto); 
         public ICollection<GetRequestedTripDto> GetTrips();
-       // public ApiResponse InfromTraveller(InformTravellerDto dto);
+        public Task<ApiResponse> InfromTraveller(int tripId);
         public Task<ApiResponse> AddToTripDetails(TripDetailsDto dto);
         public ApiResponse RequestTrip(TripDto tripDto);
     }
