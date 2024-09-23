@@ -7,6 +7,7 @@ namespace DriveApp.Models.Entities
         public string LicenseNumber { get; set; }
         public string AvailabilityStatus { get; set; }
         public ICollection<TripDetail> tripDetails { get; set; }
+        public ICollection<Rating> Ratings { get; set; }
         public Vehicle Vehicle { get; set; }
     }
 }

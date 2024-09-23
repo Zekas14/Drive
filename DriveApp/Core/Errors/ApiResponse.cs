@@ -22,6 +22,12 @@ namespace DriveApp.Core.Errors
             StatusCode = statusCode;
             Message = message ?? GetDefaultMessageForStatusCode(StatusCode);
         }
+        public ApiResponse(int? statusCode, object? data)
+        {
+            StatusCode = statusCode;
+           
+            Data = data;
+        }
 
         public ApiResponse(int? statusCode, string? message, object? data)
         {

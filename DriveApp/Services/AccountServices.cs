@@ -10,11 +10,12 @@ using Microsoft.Extensions.Caching.Memory;
 using System.IdentityModel.Tokens.Jwt;
 namespace DriveApp.Services
 {
-    public class AccountServices(UserManager<UserApplication> userManager,AppDbContext dbContext,
-        IMailServices mailServices,IMemoryCache cache) : IAccountServices
+    public class AccountServices
+        (UserManager<UserApplication> userManager,  
+        IMailServices mailServices,IMemoryCache cache)
+        : IAccountServices
     {
         private readonly UserManager<UserApplication> userManager = userManager;
-        private readonly AppDbContext dbContext = dbContext;
         private readonly IMailServices mailServices = mailServices;
         private readonly IMemoryCache _cache = cache;
         private string GenerateOtp()
@@ -174,5 +175,48 @@ namespace DriveApp.Services
             }
         }
 
+        public async Task<ApiResponse> DriverRegister(Regestration dto)
+        {
+            try
+            {
+               var driver = await userManager.FindByEmailAsync(dto.Email);
+                if (driver is not null)
+                {
+                    return new ApiResponse(400, "Email Already Used");
+                }
+                driver = new Driver()
+                {
+                    UserName = dto.UserName,
+                    Email = dto.Email,
+                    Address = dto.Address,
+                    PhoneNumber = dto.PhoneNumber,
+                    LicenseNumber = dto.LicenseNumber,
+                    AvailabilityStatus= dto.AvailabilityStatus,
+                };
+                IdentityResult result = await userManager.CreateAsync(driver, dto.Password);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(driver,"Driver");
+                    var token =await userManager.CreateTokenAsync(driver);
+                    string tokenData = new JwtSecurityTokenHandler().WriteToken(token);
+
+                    UserDto userDto = new()
+                    {
+                        Name = driver.UserName,
+                        Email = driver.Email,
+                        Address = driver.Address,
+                        Id = driver.Id,
+                        Phone = driver.PhoneNumber,
+                    };
+                    return new ApiResponse(200, "Registration Success", new { userDto, token = tokenData, Expiration = token.ValidTo });
+                }
+                return new ApiResponse(400, "Registration Failed", result.Errors);
+
+            }
+            catch (Exception e)
+            {
+                return new ApiResponse(500,e.Message);
+            }
+        }
     }
 }

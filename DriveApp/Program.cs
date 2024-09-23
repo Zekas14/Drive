@@ -19,6 +19,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITripServices,TripServices>();
 builder.Services.AddScoped<IAccountServices,AccountServices>();
 builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddScoped<IRatingServices, RatingServices>();
 builder.Services.Configure<MailSetting>(config.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailServices,MailServices>();
 builder.Services.AddIdentity<UserApplication, RoleApplication>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();

@@ -10,6 +10,7 @@ namespace DriveApp.Models.Data
         private readonly IConfiguration config;
         public DbSet<Trip> Trips { get; set; }
         public DbSet<Driver> Drivers { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
         public DbSet<TripDetail> TripDetails { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {

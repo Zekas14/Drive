@@ -2,6 +2,7 @@
 using DriveApp.DTO;
 using DriveApp.Models.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Models.Entities;
 
 namespace DriveApp.Services
@@ -9,12 +10,16 @@ namespace DriveApp.Services
     public class TripServices(AppDbContext context) : ITripServices
     {
         private readonly AppDbContext context = context;
+        public DbSet<Trip> GetAllTrips()=>context.Trips;
+        public void AddTrip(Trip trip) {
+            context.Add(trip);
+            context.SaveChanges();
+        }
 
         public ApiResponse RequestTrip(TripDto tripDto)
         {
             try
             {
-
                 Trip trip = new()
                 {
                     From = tripDto.UserLocation,
@@ -23,8 +28,7 @@ namespace DriveApp.Services
                     Price = tripDto.Price,
                    UserId = tripDto.UserId,
                 };
-                context.Trips.Add(trip);
-                context.SaveChanges();
+                AddTrip(trip);
                 return new ApiResponse(201,"Request Success");
             }catch (Exception e)
             {
@@ -32,12 +36,17 @@ namespace DriveApp.Services
             }
         }
         
-        public ICollection<GetRequestedTripDto> GetTrips()
+        public ApiResponse GetRequestedTrips()
         {
             try
             {
                 List<GetRequestedTripDto> tripDtos = new();
-                var trips = context.Trips.Include(t => t.User).Where(t=>t.Status=="Pending");
+                var trips = GetAllTrips().Include(t => t.User).Where(t=>t.Status=="Pending");
+                if (trips.IsNullOrEmpty())
+                {
+                    return new ApiResponse(404, "No Trips Found");
+
+                }
                 foreach (var item in trips)
                 {
                     GetRequestedTripDto tripDto = new()
@@ -50,11 +59,11 @@ namespace DriveApp.Services
                     };
                     tripDtos.Add(tripDto);
                 }
-                return tripDtos;
+                return new ApiResponse(200,trips);
             }
-            catch
+            catch(Exception e)
             {
-                throw new Exception();
+                return new(500, e.Message);
             }
         }
         public async Task<ApiResponse> AddToTripDetails(TripDetailsDto dto)
@@ -80,7 +89,7 @@ namespace DriveApp.Services
         {
             try
             {
-                var trip = await context.Trips.FindAsync(dto.TripId);
+                var trip = await GetAllTrips().FindAsync(dto.TripId);
                 if(trip is not null)
                 {
                     if (trip.Status!.Equals("Pending"))
@@ -92,7 +101,7 @@ namespace DriveApp.Services
                             DatebyHour = DateTime.Now
                         };
                         await AddToTripDetails(DetailsDto);
-                        context.Trips.Where(t => t.Id == trip.Id).ExecuteUpdate(t => t.SetProperty(t => t.Status, "Accepted"));
+                        GetAllTrips().Where(t => t.Id == trip.Id).ExecuteUpdate(t => t.SetProperty(t => t.Status, "Accepted"));
                         return new ApiResponse(203, "Trip Accepted");
                     }
                     return new ApiResponse(400, "Trip Not Available");
@@ -108,12 +117,12 @@ namespace DriveApp.Services
         {
             try
             {
-                var trip = await context.Trips.FindAsync(id);
+                var trip = await GetAllTrips().FindAsync(id);
                 if (trip is not null)
                 {
                     if (trip.Status!.Equals("Pending"))
                     {
-                        context.Trips.Where(t => t.Id == trip.Id).ExecuteUpdate(t => t.SetProperty(t => t.Status, "Pending"));
+                        GetAllTrips().Where(t => t.Id == trip.Id).ExecuteUpdate(t => t.SetProperty(t => t.Status, "Pending"));
                         return new ApiResponse(203, "Trip Cancelled");
                     }
                     return new ApiResponse(400, "Trip Not Available");
@@ -130,7 +139,7 @@ namespace DriveApp.Services
         {
             try
             {
-                Trip? trip = context.Trips.FirstOrDefault(t=>t.Id==tripId);
+                Trip? trip = GetAllTrips().FirstOrDefault(t=>t.Id==tripId);
                 if (trip is  null)
                 {
                     return new ApiResponse(404, "Trip Not Found");
@@ -162,5 +171,50 @@ namespace DriveApp.Services
                 return new ApiResponse(500, e.Message);
             }
         }
+
+        public ApiResponse GetTravellerTrips(string travellerId)
+        {
+            try
+            {
+               
+                var trip = context.TripDetails.Include(t => t.Trip)
+                    .Include(t => t.Driver)
+                    .Where(t => t.Trip.UserId == travellerId)
+                    .Select(t => new
+                    {
+                        DriverName = t.Driver.UserName,
+                        t.Trip.To,
+                        t.Trip.From,
+                        Cost = t.Trip.Price,
+                        Date = t.DateByHour.ToString("yyyy-mm-dd,U")
+                    }
+                    );
+                if (trip is not null)
+                {
+                    List<TravellerTripDto> dto = new();
+                    foreach (var item in trip)
+                    {
+                        TravellerTripDto tripDto = new()
+                        {
+                            DriverName = item.DriverName!,
+                            From = item.From,
+                            To = item.To,
+                            Cost = item.Cost,
+                            Date = item.Date
+                        };
+                        dto.Add(tripDto);
+                    }
+                    return new ApiResponse(200, dto);
+                }
+
+                    return new ApiResponse(404, "Trip Not Found");
+            }
+            catch (Exception e)
+            {
+                return new ApiResponse(500, e.Message);
+            }
+        }
+
+        
     }
 }

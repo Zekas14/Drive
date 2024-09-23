@@ -12,11 +12,10 @@ namespace DriveApp.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
-    {   private readonly UserManager<UserApplication> userManager;
+    {   
         private readonly IAccountServices accountServices;
-        public AccountController(IMemoryCache cache,AppDbContext context , UserManager<UserApplication> userManager,IAccountServices accountServices)
+        public AccountController(IMemoryCache cache,IAccountServices accountServices)
         {
-            this.userManager = userManager;
             this.accountServices = accountServices;
         }
         
@@ -33,6 +32,20 @@ namespace DriveApp.Controllers
                 return Ok(result);
             }
                 return BadRequest(ModelState);
+        }
+        [HttpPost("DriverRegistration")]
+        public async Task<IActionResult> DriverRegestration(Regestration dto)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await accountServices.DriverRegister(dto);
+                if (result.StatusCode == 400)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+            }
+            return BadRequest(ModelState);
         }
         [HttpPost("Login")]
         public async Task<IActionResult> Login(Login userLoginDto)

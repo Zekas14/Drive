@@ -39,22 +39,21 @@ namespace DriveApp.Controllers
             }
             return Accepted(result);
         }
-     
+        
         [HttpGet("GetRequestedTrips")]
        //    [Authorize(Roles ="Driver")]
         public IActionResult GetRequstedTrips()
         {
-            try
+            if (ModelState.IsValid)
             {
-                var trips = services.GetTrips();
-               
-                return Ok(trips);
-            }
-            catch
-            {
-                
-                return BadRequest();
-            }
+                var result = services.GetRequestedTrips();
+                if (result.StatusCode == 404)
+                {
+                return NotFound(result);
+                }
+                return Ok(result);
+            } 
+                return BadRequest(ModelState);
         }
         
         [HttpPost("RequestTrip")]
@@ -71,6 +70,19 @@ namespace DriveApp.Controllers
             }
             return BadRequest(ModelState);
         }
-
+        [HttpGet("GetTravellerTrip")]
+           public IActionResult GetTravellerTrip(string travellerId)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = services.GetTravellerTrips(travellerId);
+                if (result.StatusCode == 404) 
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            return BadRequest(ModelState);  
+        }
     }
 }
